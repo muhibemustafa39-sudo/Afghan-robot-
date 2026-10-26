@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Afghan Robot</title>
+<style>
+* { box-sizing: border-box; }
+body {
+  margin: 0; padding: 20px; background: #101827; color: white;
+  font-family: Arial, sans-serif; text-align: center;
+}
+h1 { color: #00e5ff; }
+.panel {
+  max-width: 440px; margin: 20px auto; padding: 18px;
+  background: #1d2a3c; border-radius: 18px;
+}
+select, button {
+  padding: 13px; margin: 5px; border: 0; border-radius: 10px;
+  font-size: 16px;
+}
+select { width: 90%; background: white; }
+button { background: #00bfa5; color: #001b19; min-width: 65px; }
+.stop { background: #ff5252; color: white; }
+.wide { width: 90%; }
+#status { color: #80ffdb; line-height: 1.8; }
+.note { color: #d2dbe8; font-size: 13px; line-height: 1.8; }
+</style>
+</head>
+<body>
+<h1>🤖 Afghan Robot</h1>
+<p>سیستم کنترول چهار روبات</p>
+<div class="panel">
+  <label for="robot">انتخاب روبات:</label><br>
+  <select id="robot">
+    <option value="1">روبات شماره ۱</option>
+    <option value="2">روبات شماره ۲</option>
+    <option value="3">روبات شماره ۳</option>
+    <option value="4">روبات شماره ۴</option>
+    <option value="all">همهٔ روبات‌ها</option>
+  </select>
+  <h3>جهت حرکت</h3>
+  <button onclick="move('forward')">⬆ جلو</button><br>
+  <button onclick="move('left')">⬅ چپ</button>
+  <button class="stop" onclick="move('stop')">⏹ توقف</button>
+  <button onclick="move('right')">راست ➡</button><br>
+  <button onclick="move('backward')">⬇ عقب</button>
+  <hr>
+  <button class="wide" onclick="voice()">🎙 فرمان صوتی</button>
+  <p id="status">سیستم آماده است؛ کنترولر وصل نیست.</p>
+  <p class="note">این نسخه آزمایشی است. برای حرکت واقعی روبات‌ها، اتصال به کنترولر وای‌فای باید جداگانه ساخته شود.</p>
+</div>
+<script>
+function move(direction) {
+  const robot = document.getElementById('robot').value;
+  document.getElementById('status').textContent =
+    'فرمان آزمایشی: ' + direction + ' | هدف: ' +
+    (robot === 'all' ? 'همهٔ روبات‌ها' : 'روبات ' + robot) +
+    ' — هنوز به روبات واقعی وصل نیست.';
+}
+function voice() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    document.getElementById('status').textContent =
+      'فرمان صوتی در این مرورگر پشتیبانی نمی‌شود؛ دکمه‌ها را استفاده کن.';
+    return;
+  }
+  const recognition = new SpeechRecognition();
+  recognition.lang = 'fa-IR';
+  recognition.onresult = function(event) {
+    const words = event.results[0][0].transcript;
+    document.getElementById('status').textContent = 'فرمان شنیده‌شده: ' + words;
+    if (words.includes('جلو')) move('forward');
+    else if (words.includes('عقب')) move('backward');
+    else if (words.includes('چپ')) move('left');
+    else if (words.includes('راست')) move('right');
+    else if (words.includes('توقف')) move('stop');
+    else document.getElementById('status').textContent += ' — فرمان شناخته نشد.';
+  };
+  recognition.onerror = function() {
+    document.getElementById('status').textContent = 'دریافت صدا انجام نشد؛ اجازهٔ میکروفون را بررسی کن.';
+  };
+  recognition.start();
+}
+</script>
+</body>
+</html>
